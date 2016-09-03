@@ -2,7 +2,10 @@ import argparse
 import sys
 
 import ptcaccount2
-from ptcaccount2.ptcexceptions import *
+from ptcaccount2.ptcexceptions import (PTCInvalidPasswordException,
+                                       PTCInvalidEmailException,
+                                       PTCInvalidNameException,
+                                       PTCException)
 
 
 def parse_arguments(args):
@@ -44,9 +47,15 @@ def parse_arguments(args):
         help='Output "username:password" into file "accounts.txt"'
     )
     parser.add_argument(
+        '-o', '--output', type=str, default=None,
+        help='Output to file. If left empty, output will go to stdout')
+    parser.add_argument(
         '--email-tag', action='store_true',
         help='Add the username as a tag to the email (i.e addr+tag@mail.com).'
     )  # Note: Email max length is 75 characters.
+    parser.add_argument(
+        '-f', '--format', type=str, default='compact',
+        help='The format of the username/password output. Valid options are compact (default), map, spawnscan.')
     return parser.parse_args(args)
 
 
@@ -77,8 +86,8 @@ def entry():
                 print('  Password:  {}'.format(account_info["password"]))
                 print('  Email   :  {}'.format(account_info["email"]))
                 print('\n')
-            if args.tofile:
-                with open("accounts.txt", 'a+') as writeto:
+            if args.output is not None:
+                with open(args.output, 'a+') as writeto:
                     writeto.write('{}:{}'.format(account_info["username"], account_info["password"]) + "\n")
                 print("Appended to file accounts.txt")
             account_summary.append({"username": account_info["username"], "password": account_info["password"]})
